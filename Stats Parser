@@ -1,0 +1,72 @@
+import urllib.request, urllib.error, urllib.parse
+import os
+import tableExtractor
+
+def getDir(link, path):
+    response = urllib.request.urlopen(link)
+    player_dir = response.read()
+
+    f = open(path, 'wb')
+    f.write(player_dir)
+    f.close
+
+response = urllib.request.urlopen('https://fbref.com/en/players/')
+player_dir = response.read()
+
+f = open('main_page.txt', 'wb')
+f.write(player_dir)
+f.close
+
+main_page = open('main_page.txt', 'r').read()
+alphabet = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z']
+dir_links = main_page.split('<div class="section_content" id=')[1].split('<ul class="page_index">')[1].split('</ul>')[0]
+for letter in alphabet:
+    dir_links = dir_links.replace('<li><span>' + letter + '</span><div>', '')
+dir_links = dir_links.replace('</li>', '')
+dir_links = dir_links.replace('</div>', '')
+dir_links = dir_links.split('&nbsp;&#183; ')
+dir_names = []
+for pos in range(0, len(dir_links)):
+    dir_links[pos] = dir_links[pos].replace('<a href="', '')
+    dir_links[pos] = dir_links[pos].replace('<a href="', '')
+    dir_links[pos] = dir_links[pos][0:15]
+    dir_names.append(dir_links[pos].split('/')[3])
+    dir_links[pos] = 'https://fbref.com/' + dir_links[pos]
+
+#for pos in range(0, len(dir_names)):
+ #   getDir(dir_links[pos], 'C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Directory\\' + dir_names[pos] + '.txt')
+
+player_links = []
+player_names = []
+
+for dir in dir_names:
+    main_file = open('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Directory\\'+ dir + '.txt', encoding="utf8").read()
+    temp_links = main_file.split('<div class="section_content" id="')[1].split('</div>')[0].split('\n\t    ')[1].split('<p>')
+    for pos in range(0, len(temp_links)):
+        if '<strong>' not in temp_links[pos]:
+            temp_links[pos] = ''
+
+    while("" in temp_links) :
+        temp_links.remove("")
+
+    temp_names = []
+    for pos in range(0, len(temp_links)):
+        temp_links[pos] = temp_links[pos].split('"')[1]
+        temp_links[pos] = 'https://fbref.com/' + temp_links[pos]
+        temp_names.append(temp_links[pos].split('/')[7])
+        temp_names[pos] = temp_names[pos].replace('-', ' ')
+
+    player_links.extend(temp_links)
+    player_names.extend(temp_names)
+
+print(len(player_names))
+for pos in range(13847, len(player_names)):
+    getDir(player_links[pos], 'C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + player_names[pos] + '.txt')
+
+for name in os.listdir('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats'):
+    try:
+        tableExtractor.makeCSV(name)
+        os.remove('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name)
+    except IndexError:
+        os.remove('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name)
+        pass
