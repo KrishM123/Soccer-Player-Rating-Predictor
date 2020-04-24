@@ -1,0 +1,664 @@
+import pandas
+import numpy
+import functools
+import os
+
+
+
+
+
+
+
+
+
+
+def standard(name):
+    main_file = open('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name , encoding="utf8").read()
+    standard_stats = main_file.split('<div class="section_content" id="div_kitchen_sink_standard">')[1].split(
+        '<div class="footer no_hide_long" id="tfooter_stats_standard_ks_dom_lg">')[0].split('<thead>')[1]
+    header = standard_stats.split('</thead>')[0].split('<tr>')[1].split('</tr>')[0].split('</th>')
+    for pos in range(0, len(header)):
+        header[pos] = header[pos].split('>')[-1]
+    header.pop()
+    header[2] = ''
+    header[3] = ''
+    header[4] = ''
+    header[5] = ''
+    header[-1] = ''
+    for pos in range(15, 20):
+        header[pos] = header[pos] + '90'
+    for pos in range(23, 27):
+        header[pos] = header[pos] + '90'
+    temp = filter(lambda x: x != "", header)
+    header = list(temp)
+    main_tbl = standard_stats.split('<tbody>')[1].split('</tbody>')[0].split('</tr>')
+    row_data = [''] * len(main_tbl)
+    for pos in range(0, len(main_tbl) - 1):
+        main_tbl[pos] = main_tbl[pos].split('<td class="left group_start" data-stat="matches">')[0]
+        year = main_tbl[pos].split('</th>')[0].split('>')[-1]
+        temp = main_tbl[pos].split('</td>')
+        for pos2 in range(0, len(temp)):
+            temp[pos2] = temp[pos2].split('>')[-1]
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(-1)
+        temp.pop(-1)
+        extr = ''
+        for ele in temp:
+            extr = extr + str(ele) + ', '
+        row_data[pos] = str(year) + ', ' + extr
+
+    footer = standard_stats.split('<tfoot>')[1].split('<td class="left iz group_start" data-stat="matches"></td>')[0].split('</td>')
+    for pos in range(0, len(footer)):
+        footer[pos] = footer[pos].split('>')[-1]
+    footer = footer[0:26]
+    footer[0] = ''
+    footer[2] = ''
+
+    data = []
+    row_data.pop(-1)
+    for pos in range(0, len(row_data)):
+        temp_dict = {}
+        temp = row_data[pos].split(', ')
+        for pos2 in range(0, len(header)):
+            temp_dict[header[pos2]] = temp[pos2]
+        data.append(temp_dict)
+
+    footer = footer[2:26]
+    footer_dict = {}
+    for pos in range(0, len(footer)):
+        footer_dict[header[pos]] = footer[pos]
+    data.append(footer_dict)
+    standard = pandas.DataFrame(data)
+    return standard
+
+
+
+
+
+
+
+
+
+
+def shooting(name):
+    main_file = open('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name , encoding="utf8").read()
+    standard_stats = main_file.split('<div class="section_content" id="div_kitchen_sink_shooting">')[1].split(
+        '<div class="footer no_hide_long" id="tfooter_stats_standard_ks_dom_lg">')[0].split('<thead>')[1]
+    header = standard_stats.split('</thead>')[0].split('<tr>')[1].split('</tr>')[0].split('</th>')
+    for pos in range(0, len(header)):
+        header[pos] = header[pos].split('>')[-1]
+    header.pop()
+    header.pop()
+    header[2] = ''
+    header[3] = ''
+    header[4] = ''
+    header[5] = ''
+    temp = filter(lambda x: x != "", header)
+    header = list(temp)
+    main_tbl = standard_stats.split('<tbody>')[1].split('</tbody>')[0].split('</tr>')
+    row_data = [''] * len(main_tbl)
+    for pos in range(0, len(main_tbl) - 1):
+        main_tbl[pos] = main_tbl[pos].split('<td class="left group_start" data-stat="matches">')[0]
+        year = main_tbl[pos].split('</th>')[0].split('>')[-1]
+        temp = main_tbl[pos].split('</td>')
+        for pos2 in range(0, len(temp)):
+            temp[pos2] = temp[pos2].split('>')[-1]
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        extr = ''
+        for ele in temp:
+            extr = extr + str(ele) + ', '
+        row_data[pos] = str(year) + ', ' + extr
+
+    footer = standard_stats.split('<tfoot>')[1].split('<td class="left iz group_start" data-stat="matches"></td>')[0].split('</td>')
+    for pos in range(0, len(footer)):
+        footer[pos] = footer[pos].split('>')[-1]
+    footer.pop()
+    footer[0] = ''
+    footer[2] = ''
+
+    data = []
+    row_data.pop(-1)
+    for pos in range(0, len(row_data)):
+        temp_dict = {}
+        temp = row_data[pos].split(', ')
+        for pos2 in range(0, len(header)):
+            temp_dict[header[pos2]] = temp[pos2]
+        data.append(temp_dict)
+
+    footer = footer[2:]
+    footer_dict = {}
+    for pos in range(0, len(header)):
+        footer_dict[header[pos]] = footer[pos]
+    data.append(footer_dict)
+    shooting = pandas.DataFrame(data)
+    shooting.drop(columns=['Age'])
+    return shooting
+
+
+
+
+
+
+
+
+
+
+def passing(name):
+    main_file = open('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name , encoding="utf8").read()
+    standard_stats = main_file.split('<div class="section_content" id="div_kitchen_sink_passing">')[1].split(
+        '<div class="footer no_hide_long" id="tfooter_stats_standard_ks_dom_lg">')[0].split('<thead>')[1]
+    header = standard_stats.split('</thead>')[0].split('<tr>')[1].split('</tr>')[0].split('</th>')
+    for pos in range(0, len(header)):
+        header[pos] = header[pos].split('>')[-1]
+    header.pop()
+    header[2] = ''
+    header[3] = ''
+    header[4] = ''
+    header[5] = ''
+    header[-1] = ''
+    for pos in range(12, 15):
+        header[pos] = header[pos] + ' Short'
+    for pos in range(15, 18):
+        header[pos] = header[pos] + ' Medium'
+    for pos in range(18, 21):
+        header[pos] = header[pos] + ' Long'
+    temp = filter(lambda x: x != "", header)
+    header = list(temp)
+    main_tbl = standard_stats.split('<tbody>')[1].split('</tbody>')[0].split('</tr>')
+    row_data = [''] * len(main_tbl)
+    for pos in range(0, len(main_tbl) - 1):
+        main_tbl[pos] = main_tbl[pos].split('<td class="left group_start" data-stat="matches">')[0]
+        year = main_tbl[pos].split('</th>')[0].split('>')[-1]
+        temp = main_tbl[pos].split('</td>')
+        for pos2 in range(0, len(temp)):
+            temp[pos2] = temp[pos2].split('>')[-1]
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(-1)
+        extr = ''
+        for ele in temp:
+            extr = extr + str(ele) + ', '
+        row_data[pos] = str(year) + ', ' + extr
+
+    footer = standard_stats.split('<tfoot>')[1].split('<td class="left iz group_start" data-stat="matches"></td>')[0].split('</td>')
+    for pos in range(0, len(footer)):
+        footer[pos] = footer[pos].split('>')[-1]
+    footer.pop()
+    footer[0] = ''
+    footer[2] = ''
+
+    data = []
+    row_data.pop(-1)
+    for pos in range(0, len(row_data)):
+        temp_dict = {}
+        temp = row_data[pos].split(', ')
+        for pos2 in range(0, len(header)):
+            temp_dict[header[pos2]] = temp[pos2]
+        data.append(temp_dict)
+
+    footer.pop(0)
+    footer.pop(0)
+    footer.pop(0)
+    footer_dict = {}
+    for pos in range(0, len(header)):
+        footer_dict[header[pos]] = footer[pos]
+    data.append(footer_dict)
+    passing = pandas.DataFrame(data)
+    passing.drop(columns=['Age', '90s'])
+    return passing
+
+
+
+
+
+
+
+
+
+
+def passTypes(name):
+    main_file = open('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name , encoding="utf8").read()
+    standard_stats = main_file.split('<div class="section_content" id="div_kitchen_sink_passing_types">')[1].split(
+        '<div class="footer no_hide_long" id="tfooter_stats_standard_ks_dom_lg">')[0].split('<thead>')[1]
+    header = standard_stats.split('</thead>')[0].split('<tr>')[1].split('</tr>')[0].split('</th>')
+    for pos in range(0, len(header)):
+        header[pos] = header[pos].split('>')[-1]
+    header.pop()
+    header[2] = ''
+    header[3] = ''
+    header[4] = ''
+    header[5] = ''
+    header[-1] = ''
+    for pos in range(17, 20):
+        header[pos] = header[pos] + ' Corner Kicks'
+    temp = filter(lambda x: x != "", header)
+    header = list(temp)
+    main_tbl = standard_stats.split('<tbody>')[1].split('</tbody>')[0].split('</tr>')
+    row_data = [''] * len(main_tbl)
+    for pos in range(0, len(main_tbl) - 1):
+        main_tbl[pos] = main_tbl[pos].split('<td class="left group_start" data-stat="matches">')[0]
+        year = main_tbl[pos].split('</th>')[0].split('>')[-1]
+        temp = main_tbl[pos].split('</td>')
+        for pos2 in range(0, len(temp)):
+            temp[pos2] = temp[pos2].split('>')[-1]
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(-1)
+        extr = ''
+        for ele in temp:
+            extr = extr + str(ele) + ', '
+        row_data[pos] = str(year) + ', ' + extr
+
+    footer = standard_stats.split('<tfoot>')[1].split('<td class="left iz group_start" data-stat="matches"></td>')[0].split('</td>')
+    for pos in range(0, len(footer)):
+        footer[pos] = footer[pos].split('>')[-1]
+    footer.pop()
+    footer[0] = ''
+    footer[2] = ''
+
+    data = []
+    row_data.pop(-1)
+    for pos in range(0, len(row_data)):
+        temp_dict = {}
+        temp = row_data[pos].split(', ')
+        for pos2 in range(0, len(header)):
+            temp_dict[header[pos2]] = temp[pos2]
+        data.append(temp_dict)
+
+    footer.pop(0)
+    footer.pop(0)
+    footer.pop(0)
+    footer_dict = {}
+    for pos in range(0, len(header)):
+        footer_dict[header[pos]] = footer[pos]
+    data.append(footer_dict)
+    pass_types = pandas.DataFrame(data)
+    pass_types.drop(columns=['Age', '90s', 'Att'])
+    return pass_types
+
+
+
+
+
+
+
+
+
+
+def goalShotCreation(name):
+    main_file = open('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name , encoding="utf8").read()
+    standard_stats = main_file.split('<div class="section_content" id="div_kitchen_sink_gca">')[1].split(
+        '<div class="footer no_hide_long" id="tfooter_stats_standard_ks_dom_lg">')[0].split('<thead>')[1]
+    header = standard_stats.split('</thead>')[0].split('<tr>')[1].split('</tr>')[0].split('</th>')
+    for pos in range(0, len(header)):
+        header[pos] = header[pos].split('>')[-1]
+    header.pop()
+    header[2] = ''
+    header[3] = ''
+    header[4] = ''
+    header[5] = ''
+    header[-1] = ''
+    for pos in range(9, 14):
+        header[pos] = header[pos] + ' SCA Types'
+
+    temp = filter(lambda x: x != "", header)
+    header = list(temp)
+    main_tbl = standard_stats.split('<tbody>')[1].split('</tbody>')[0].split('</tr>')
+    row_data = [''] * len(main_tbl)
+    for pos in range(0, len(main_tbl) - 1):
+        main_tbl[pos] = main_tbl[pos].split('<td class="left group_start" data-stat="matches">')[0]
+        year = main_tbl[pos].split('</th>')[0].split('>')[-1]
+        temp = main_tbl[pos].split('</td>')
+        for pos2 in range(0, len(temp)):
+            temp[pos2] = temp[pos2].split('>')[-1]
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(-1)
+        extr = ''
+        for ele in temp:
+            extr = extr + str(ele) + ', '
+        row_data[pos] = str(year) + ', ' + extr
+
+    footer = standard_stats.split('<tfoot>')[1].split('<td class="left iz group_start" data-stat="matches"></td>')[0].split('</td>')
+    for pos in range(0, len(footer)):
+        footer[pos] = footer[pos].split('>')[-1]
+    footer.pop()
+    footer[0] = ''
+    footer[2] = ''
+
+    data = []
+    row_data.pop(-1)
+    for pos in range(0, len(row_data)):
+        temp_dict = {}
+        temp = row_data[pos].split(', ')
+        for pos2 in range(0, len(header)):
+            temp_dict[header[pos2]] = temp[pos2]
+        data.append(temp_dict)
+
+    footer.pop(0)
+    footer.pop(0)
+    footer.pop(0)
+    footer_dict = {}
+    for pos in range(0, len(header)):
+        footer_dict[header[pos]] = footer[pos]
+    data.append(footer_dict)
+    goal_shot_creation = pandas.DataFrame(data)
+    goal_shot_creation.drop(columns=['Age', '90s'])
+
+    return goal_shot_creation
+
+
+
+
+
+
+
+
+
+
+def defenciveActions(name):
+    main_file = open('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name , encoding="utf8").read()
+    standard_stats = main_file.split('<div class="section_content" id="div_kitchen_sink_defense">')[1].split(
+        '<div class="footer no_hide_long" id="tfooter_stats_standard_ks_dom_lg">')[0].split('<thead>')[1]
+    header = standard_stats.split('</thead>')[0].split('<tr>')[1].split('</tr>')[0].split('</th>')
+    for pos in range(0, len(header)):
+        header[pos] = header[pos].split('>')[-1]
+    header.pop()
+    header[2] = ''
+    header[3] = ''
+    header[4] = ''
+    header[5] = ''
+    header[-1] = ''
+    for pos in range(7, 12):
+        header[pos] = header[pos] + ' Tackles'
+
+    temp = filter(lambda x: x != "", header)
+    header = list(temp)
+    main_tbl = standard_stats.split('<tbody>')[1].split('</tbody>')[0].split('</tr>')
+    row_data = [''] * len(main_tbl)
+    for pos in range(0, len(main_tbl) - 1):
+        main_tbl[pos] = main_tbl[pos].split('<td class="left group_start" data-stat="matches">')[0]
+        year = main_tbl[pos].split('</th>')[0].split('>')[-1]
+        temp = main_tbl[pos].split('</td>')
+        for pos2 in range(0, len(temp)):
+            temp[pos2] = temp[pos2].split('>')[-1]
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(-1)
+        extr = ''
+        for ele in temp:
+            extr = extr + str(ele) + ', '
+        row_data[pos] = str(year) + ', ' + extr
+
+    footer = standard_stats.split('<tfoot>')[1].split('<td class="left iz group_start" data-stat="matches"></td>')[0].split('</td>')
+    for pos in range(0, len(footer)):
+        footer[pos] = footer[pos].split('>')[-1]
+    footer.pop()
+    footer[0] = ''
+    footer[2] = ''
+
+    data = []
+    row_data.pop(-1)
+    for pos in range(0, len(row_data)):
+        temp_dict = {}
+        temp = row_data[pos].split(', ')
+        for pos2 in range(0, len(header)):
+            temp_dict[header[pos2]] = temp[pos2]
+        data.append(temp_dict)
+
+    footer.pop(0)
+    footer.pop(0)
+    footer.pop(0)
+    footer_dict = {}
+    for pos in range(0, len(header)):
+        footer_dict[header[pos]] = footer[pos]
+    data.append(footer_dict)
+    defencive_actions = pandas.DataFrame(data)
+    defencive_actions.drop(columns=['Age', '90s'])
+    return defencive_actions
+
+
+
+
+
+
+
+
+
+
+def possession(name):
+    main_file = open('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name , encoding="utf8").read()
+    standard_stats = main_file.split('<div class="section_content" id="div_kitchen_sink_possession">')[1].split(
+        '<div class="footer no_hide_long" id="tfooter_stats_standard_ks_dom_lg">')[0].split('<thead>')[1]
+    header = standard_stats.split('</thead>')[0].split('<tr>')[1].split('</tr>')[0].split('</th>')
+    for pos in range(0, len(header)):
+        header[pos] = header[pos].split('>')[-1]
+    header.pop()
+    header[2] = ''
+    header[3] = ''
+    header[4] = ''
+    header[5] = ''
+    header[-1] = ''
+
+    temp = filter(lambda x: x != "", header)
+    header = list(temp)
+    main_tbl = standard_stats.split('<tbody>')[1].split('</tbody>')[0].split('</tr>')
+    row_data = [''] * len(main_tbl)
+    for pos in range(0, len(main_tbl) - 1):
+        main_tbl[pos] = main_tbl[pos].split('<td class="left group_start" data-stat="matches">')[0]
+        year = main_tbl[pos].split('</th>')[0].split('>')[-1]
+        temp = main_tbl[pos].split('</td>')
+        for pos2 in range(0, len(temp)):
+            temp[pos2] = temp[pos2].split('>')[-1]
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(-1)
+        extr = ''
+        for ele in temp:
+            extr = extr + str(ele) + ', '
+        row_data[pos] = str(year) + ', ' + extr
+
+    footer = standard_stats.split('<tfoot>')[1].split('<td class="left iz group_start" data-stat="matches"></td>')[0].split('</td>')
+    for pos in range(0, len(footer)):
+        footer[pos] = footer[pos].split('>')[-1]
+    footer.pop()
+    footer[0] = ''
+    footer[2] = ''
+
+    data = []
+    row_data.pop(-1)
+    for pos in range(0, len(row_data)):
+        temp_dict = {}
+        temp = row_data[pos].split(', ')
+        for pos2 in range(0, len(header)):
+            temp_dict[header[pos2]] = temp[pos2]
+        data.append(temp_dict)
+
+    footer.pop(0)
+    footer.pop(0)
+    footer.pop(0)
+    footer_dict = {}
+    for pos in range(0, len(header)):
+        footer_dict[header[pos]] = footer[pos]
+    data.append(footer_dict)
+    possession = pandas.DataFrame(data)
+    possession.drop(columns=['Age', '90s'])
+    return possession
+
+
+
+
+
+
+
+
+
+
+def playingTime(name):
+    main_file = open('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name , encoding="utf8").read()
+    standard_stats = main_file.split('<div class="section_content" id="div_kitchen_sink_playing_time">')[1].split(
+        '<div class="footer no_hide_long" id="tfooter_stats_standard_ks_dom_lg">')[0].split('<thead>')[1]
+    header = standard_stats.split('</thead>')[0].split('<tr>')[1].split('</tr>')[0].split('</th>')
+    for pos in range(0, len(header)):
+        header[pos] = header[pos].split('>')[-1]
+    header.pop()
+    header[2] = ''
+    header[3] = ''
+    header[4] = ''
+    header[5] = ''
+    header[-1] = ''
+    header[-2] = header[-2] + ' xP'
+
+    temp = filter(lambda x: x != "", header)
+    header = list(temp)
+    main_tbl = standard_stats.split('<tbody>')[1].split('</tbody>')[0].split('</tr>')
+    row_data = [''] * len(main_tbl)
+    for pos in range(0, len(main_tbl) - 1):
+        main_tbl[pos] = main_tbl[pos].split('<td class="left group_start" data-stat="matches">')[0]
+        year = main_tbl[pos].split('</th>')[0].split('>')[-1]
+        temp = main_tbl[pos].split('</td>')
+        for pos2 in range(0, len(temp)):
+            temp[pos2] = temp[pos2].split('>')[-1]
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(-1)
+        extr = ''
+        for ele in temp:
+            extr = extr + str(ele) + ', '
+        row_data[pos] = str(year) + ', ' + extr
+
+    footer = standard_stats.split('<tfoot>')[1].split('<td class="left iz group_start" data-stat="matches"></td>')[0].split('</td>')
+    for pos in range(0, len(footer)):
+        footer[pos] = footer[pos].split('>')[-1]
+    footer.pop()
+    footer[0] = ''
+    footer[2] = ''
+
+    data = []
+    row_data.pop(-1)
+    for pos in range(0, len(row_data)):
+        temp_dict = {}
+        temp = row_data[pos].split(', ')
+        for pos2 in range(0, len(header)):
+            temp_dict[header[pos2]] = temp[pos2]
+        data.append(temp_dict)
+
+    footer.pop(0)
+    footer.pop(0)
+    footer.pop(0)
+    footer_dict = {}
+    for pos in range(0, len(header)):
+        footer_dict[header[pos]] = footer[pos]
+    data.append(footer_dict)
+    playing_time = pandas.DataFrame(data)
+    playing_time.drop(columns=['Age', '90s'])
+    return playing_time
+
+
+
+
+
+
+
+
+
+
+def misc(name):
+    main_file = open('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name, encoding="utf8").read()
+    standard_stats = main_file.split('<div class="section_content" id="div_kitchen_sink_misc">')[1].split(
+        '<div class="footer no_hide_long" id="tfooter_stats_standard_ks_dom_lg">')[0].split('<thead>')[1]
+    header = standard_stats.split('</thead>')[0].split('<tr>')[1].split('</tr>')[0].split('</th>')
+    for pos in range(0, len(header)):
+        header[pos] = header[pos].split('>')[-1]
+    header.pop()
+    header[2] = ''
+    header[3] = ''
+    header[4] = ''
+    header[5] = ''
+    header[-1] = ''
+
+    temp = filter(lambda x: x != "", header)
+    header = list(temp)
+    main_tbl = standard_stats.split('<tbody>')[1].split('</tbody>')[0].split('</tr>')
+    row_data = [''] * len(main_tbl)
+    for pos in range(0, len(main_tbl) - 1):
+        main_tbl[pos] = main_tbl[pos].split('<td class="left group_start" data-stat="matches">')[0]
+        year = main_tbl[pos].split('</th>')[0].split('>')[-1]
+        temp = main_tbl[pos].split('</td>')
+        for pos2 in range(0, len(temp)):
+            temp[pos2] = temp[pos2].split('>')[-1]
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(1)
+        temp.pop(-1)
+        extr = ''
+        for ele in temp:
+            extr = extr + str(ele) + ', '
+        row_data[pos] = str(year) + ', ' + extr
+
+    footer = standard_stats.split('<tfoot>')[1].split('<td class="left iz group_start" data-stat="matches"></td>')[0].split('</td>')
+    for pos in range(0, len(footer)):
+        footer[pos] = footer[pos].split('>')[-1]
+    footer.pop()
+    footer[0] = ''
+    footer[2] = ''
+
+    data = []
+    row_data.pop(-1)
+    for pos in range(0, len(row_data)):
+        temp_dict = {}
+        temp = row_data[pos].split(', ')
+        for pos2 in range(0, len(header)):
+            temp_dict[header[pos2]] = temp[pos2]
+        data.append(temp_dict)
+
+    footer.pop(0)
+    footer.pop(0)
+    footer.pop(0)
+    footer_dict = {}
+    for pos in range(0, len(header)):
+        footer_dict[header[pos]] = footer[pos]
+    data.append(footer_dict)
+    misc = pandas.DataFrame(data)
+    misc.drop(columns=['Age', '90s'])
+    return misc
+
+
+
+
+
+
+
+
+
+def makeCSV(name):
+    shootingDF = shooting(name)
+    passingDF = passing(name)
+    passTypeDF = passTypes(name)
+    gscDF = goalShotCreation(name)
+    defenceDF = defenciveActions(name)
+    playTimeDF = playingTime(name)
+    possessionDF = possession(name)
+    miscDF = misc(name)
+    dfs = [shootingDF, passingDF, passTypeDF, gscDF, defenceDF, playTimeDF, possessionDF, miscDF]
+    Final = functools.reduce(lambda left, right: pandas.merge(left, right, on='Season'), dfs)
+    Final.to_csv('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name)
