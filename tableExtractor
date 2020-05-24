@@ -2,7 +2,7 @@ import pandas
 import numpy
 import functools
 import os
-
+import csv
 
 
 
@@ -650,15 +650,81 @@ def misc(name):
 
 
 
-def makeCSV(name):
-    shootingDF = shooting(name)
-    passingDF = passing(name)
-    passTypeDF = passTypes(name)
-    gscDF = goalShotCreation(name)
-    defenceDF = defenciveActions(name)
-    playTimeDF = playingTime(name)
-    possessionDF = possession(name)
-    miscDF = misc(name)
-    dfs = [shootingDF, passingDF, passTypeDF, gscDF, defenceDF, playTimeDF, possessionDF, miscDF]
-    Final = functools.reduce(lambda left, right: pandas.merge(left, right, on='Season'), dfs)
-    Final.to_csv('C:\Krish\Coding\Python Practice\Soccer Player Predictor\Data\Player Stats\\' + name)
+
+
+def finalize(dataframe):
+    shootingDF = dataframe.to_numpy()
+    new_df = []
+    for line in shootingDF:
+        new_df.append(str(line).replace('\n', ''))
+    shootingDF = new_df
+    years = []
+    for line in shootingDF:
+        years.append(line[2:11])
+    years.pop(-1)
+    repeat = []
+    for pos in range(1, len(years)):
+        if years[pos] == years[pos - 1]:
+            repeat.append((pos - 1, pos))
+    new_df = []
+    for line in shootingDF:
+        new_df.append(line[1:-1])
+    shootingDF = []
+    for line in new_df:
+        new_line = line.split(' ')
+        for pos in range(len(new_line)):
+            new_line[pos] = new_line[pos].replace("'", '')
+        shootingDF.append(new_line)
+    for pos in range(len(shootingDF)):
+        for pos2 in range(len(shootingDF[pos])):
+            if shootingDF[pos][pos2] == '':
+                shootingDF[pos][pos2] = '0'
+            if ',' in shootingDF[pos][pos2]:
+                shootingDF[pos][pos2] = shootingDF[pos][pos2].replace(',', '')
+            try:
+                shootingDF[pos][pos2] = int(shootingDF[pos][pos2])
+            except:
+                try:
+                    shootingDF[pos][pos2] = float(shootingDF[pos][pos2])
+                except:
+                    pass
+    for tuples in repeat:
+        (first, _) = tuples
+        (_, second) = tuples
+        line = shootingDF[first]
+        shootingDF[first] = ''
+        for pos in range(2, len(line)):
+            shootingDF[second][pos] = round(int(line[pos]) + int(shootingDF[second][pos]), 2)
+    new_df = []
+    for pos in range(len(shootingDF)):
+        if shootingDF[pos] != '':
+            new_df.append(shootingDF[pos])
+    shootingDF = new_df
+    return shootingDF[0:-1]
+
+
+
+
+
+
+
+
+
+def makeCSV(name, path):
+    shootingDF = finalize(shooting(name))
+    passingDF = finalize(passing(name))
+    passTypeDF = finalize(passTypes(name))
+    gscDF = finalize(goalShotCreation(name))
+    defenceDF = finalize(defenciveActions(name))
+    playTimeDF = finalize(playingTime(name))
+    possessionDF = finalize(possession(name))
+    miscDF = finalize(misc(name))
+    name = name.replace('.txt', '')
+    frames = [shootingDF, passingDF, passTypeDF, gscDF, defenceDF, playTimeDF, possessionDF, miscDF]
+    for pos in range(len(shootingDF)):
+        file = open(path + name + ' ' + shootingDF[pos][0] + '.txt', 'w')
+        lower = pos-2
+        if lower < 0:
+            lower = 0
+        for frame in frames:
+            file.write(str(frame[lower:pos+1]))
